@@ -387,7 +387,9 @@
 }
 
 - (void)updateAutoMediaPlaybackPolicy:(NSNumber*)policy
-                      inConfiguration:(WKWebViewConfiguration*)configuration {
+                      inConfiguration:(WKWebViewConfiguration*)configuration
+                      allowsInlineMediaPlayback:(bool)allowsInlineMediaPlayback {
+  configuration.allowsInlineMediaPlayback = allowsInlineMediaPlayback;
   switch ([policy integerValue]) {
     case 0:  // require_user_action_for_all_media_types
       if (@available(iOS 10.0, *)) {
