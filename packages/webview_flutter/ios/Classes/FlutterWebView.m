@@ -86,12 +86,23 @@
       [self registerJavaScriptChannels:_javaScriptChannelNames controller:userContentController];
     }
 
+     NSString* documentStartScript = args[@"documentStartScript"];
+    WKUserScript* wrapperScript =
+        [[WKUserScript alloc] initWithSource:documentStartScript
+                               injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                            forMainFrameOnly:NO];
+    [userContentController addUserScript:wrapperScript];
+
     NSDictionary<NSString*, id>* settings = args[@"settings"];
 
     WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.userContentController = userContentController;
+    configuration.userContentController = userContentController;    
+
+    NSNumber* allowsInlineMediaPlaybackSettings = settings[@"allowsInlineMediaPlayback"];    
+      bool allowsInlineMediaPlayback = [allowsInlineMediaPlaybackSettings boolValue];
     [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
-                        inConfiguration:configuration];
+                        inConfiguration:configuration
+                        allowsInlineMediaPlayback:allowsInlineMediaPlayback];
 
     _webView = [[FLTWKWebView alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
