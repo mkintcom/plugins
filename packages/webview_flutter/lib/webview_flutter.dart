@@ -285,7 +285,7 @@ class WebView extends StatefulWidget {
   final String? initialUrl;
 
   /// The initial URL to load.
-  final String documentStartScript;
+  final String? documentStartScript;
 
   /// Whether Javascript execution is enabled.
   final JavascriptMode javascriptMode;
