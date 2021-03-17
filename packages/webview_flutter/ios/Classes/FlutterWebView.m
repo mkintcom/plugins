@@ -108,6 +108,7 @@
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = _navigationDelegate;
+    _webView.scrollView.delegate = self;
     __weak __typeof__(self) weakSelf = self;
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
@@ -318,7 +319,7 @@
   int x = [arguments[@"x"] intValue] + contentOffset.x;
   int y = [arguments[@"y"] intValue] + contentOffset.y;
 
-  _webView.scrollView.contentOffset = CGPointMake(x, y);
+  _webView.scrollView. contentOffset = CGPointMake(x, y);
   result(nil);
 }
 
@@ -479,6 +480,13 @@
   }
 
   return nil;
+}
+
+#pragma mark UIScrollViewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
+    [_channel invokeMethod:@"onScrollChanged" arguments:@{@"dy" : [NSNumber numberWithDouble:scrollView.contentOffset.y]}];
+    
 }
 
 @end
