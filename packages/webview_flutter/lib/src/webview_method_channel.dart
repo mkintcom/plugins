@@ -47,7 +47,8 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
         _platformCallbacksHandler.onPageStarted(call.arguments['url']!);
         return null;
       case 'onScrollChanged':
-        _platformCallbacksHandler.onScrollChanged(call.arguments['dy']!);
+        _platformCallbacksHandler.onScrollChanged(ScrollUpdates(
+            y: call.arguments['y']!, velocity: call.arguments['velocity']!));
         return null;
       case 'onWebResourceError':
         _platformCallbacksHandler.onWebResourceError(

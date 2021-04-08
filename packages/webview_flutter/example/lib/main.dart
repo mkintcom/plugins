@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/platform_interface.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() => runApp(MaterialApp(home: WebViewExample()));
@@ -82,8 +83,8 @@ class _WebViewExampleState extends State<WebViewExample> {
           onPageFinished: (String url) {
             print('Page finished loading: $url');
           },
-          onScrollChanged: (double dy) {
-            print('Scroll Changed: $dy');
+          onScrollChanged: (ScrollUpdates scrollUpdates) {
+            print('Scroll Changed: ${scrollUpdates.y}');
           },
           gestureNavigationEnabled: true,
         );

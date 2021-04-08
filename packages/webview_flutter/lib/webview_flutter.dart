@@ -146,7 +146,7 @@ typedef void PageStartedCallback(String url);
 typedef void PageFinishedCallback(String url);
 
 /// Signature for when a [WebView] has finished loading a page.
-typedef void ScrollChangedCallback(double dy);
+typedef void ScrollChangedCallback(ScrollUpdates scrollUpdates);
 
 /// Signature for when a [WebView] is loading a page.
 typedef void PageLoadingCallback(int progress);
@@ -598,9 +598,9 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   }
 
   @override
-  void onScrollChanged(double dy) {
+  void onScrollChanged(ScrollUpdates scrollUpdates) {
     if (_widget.onScrollChanged != null) {
-      _widget.onScrollChanged!(dy);
+      _widget.onScrollChanged!(scrollUpdates);
     }
   }
 

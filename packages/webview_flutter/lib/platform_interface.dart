@@ -29,8 +29,9 @@ abstract class WebViewPlatformCallbacksHandler {
 
   /// Invoked by [WebViewPlatformController] when a page has finished loading.
   void onPageFinished(String url);
+
   /// Invoked by [WebViewPlatformController] when a page has finished loading.
-  void onScrollChanged(double dy);
+  void onScrollChanged(ScrollUpdates scrollUpdates);
 
   /// Invoked by [WebViewPlatformController] when a page is loading.
   /// /// Only works when [WebSettings.hasProgressTracking] is set to `true`.
@@ -101,6 +102,23 @@ enum WebResourceErrorType {
 
   /// The result of JavaScript execution could not be returned.
   javaScriptResultTypeIsUnsupported,
+}
+
+class ScrollUpdates {
+  /// Creates a new [ScrollUpdates]
+  ///
+  /// This class is received in [onScrollUpdate]
+  ScrollUpdates({
+    required this.y,
+    required this.velocity,
+  })   : assert(y != null),
+        assert(velocity != null);
+
+  /// Scroll position on y axis
+  final double y;
+
+  /// Speed
+  final double velocity;
 }
 
 /// Error returned in `WebView.onWebResourceError` when a web resource loading error has occurred.
@@ -464,6 +482,7 @@ class CreationParams {
   ///
   /// When null the webview will be created without loading any page.
   final String? initialUrl;
+
   /// Javascript file
   final String? documentStartScript;
 
