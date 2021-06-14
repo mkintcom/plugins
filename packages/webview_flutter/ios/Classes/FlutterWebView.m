@@ -484,11 +484,11 @@
 
 #pragma mark UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
+    //NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
     CGPoint scrollVelocity = [[scrollView panGestureRecognizer] velocityInView:scrollView];
-    NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    //NSLog(@"scroll velocity : %f",scrollVelocity.y);
     
-    NSLog(@"is tracking: %d", scrollView.isTracking);
+    //NSLog(@"is tracking: %d", scrollView.isTracking);
     
     NSString* status = scrollView.isTracking ? @"dragging" : @"not_dragging";
     
@@ -502,9 +502,9 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     NSLog(@"End dragging");
-    NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
+    //NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
     CGPoint scrollVelocity = [[scrollView panGestureRecognizer] velocityInView:scrollView];
-    NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    //NSLog(@"scroll velocity : %f",scrollVelocity.y);
     
     [_channel invokeMethod:@"onScrollChanged"
                  arguments:@{
