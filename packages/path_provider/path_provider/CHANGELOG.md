@@ -1,14 +1,6 @@
-## 2.0.1
-
-* Update platform_plugin_interface version requirement.
-
-## 2.0.0
+## 2.0.0-nullsafety
 
 * Migrate to null safety.
-* BREAKING CHANGE: Path accessors that return non-nullable results will throw
-  a `MissingPlatformDirectoryException` if the platform implementation is unable
-  to get the corresponding directory (except on platforms where the method is
-  explicitly unsupported, where they will continue to throw `UnsupportedError`).
 
 ## 1.6.28
 

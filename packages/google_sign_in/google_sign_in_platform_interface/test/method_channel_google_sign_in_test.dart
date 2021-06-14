@@ -100,12 +100,11 @@ void main() {
               hostedDomain: 'example.com',
               scopes: <String>['two', 'scopes'],
               signInOption: SignInOption.games,
-              clientId: 'fakeClientId');
+              clientId: 'UNUSED!');
         }: isMethodCall('init', arguments: <String, dynamic>{
           'hostedDomain': 'example.com',
           'scopes': <String>['two', 'scopes'],
           'signInOption': 'SignInOption.games',
-          'clientId': 'fakeClientId',
         }),
         () {
           googleSignIn.getTokens(

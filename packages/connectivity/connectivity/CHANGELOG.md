@@ -1,16 +1,18 @@
-## 3.0.2
+## 3.0.0-nullsafety.3
 
-* Update platform_plugin_interface version requirement.
+* Fix outdated links across a number of markdown files ([#3276](https://github.com/flutter/plugins/pull/3276))
 
-## 3.0.1
+## 3.0.0-nullsafety.2
 
-* Migrate tests to null safety.
+* Android: Cleanup the NetworkCallback object when a connectivity stream is cancelled
 
-## 3.0.0
+## 3.0.0-nullsafety.1
+
+* Bump Dart SDK to support null safety.
+
+## 3.0.0-nullsafety
 
 * Migrate to null safety.
-* Fix outdated links across a number of markdown files ([#3276](https://github.com/flutter/plugins/pull/3276))
-* Android: Cleanup the NetworkCallback object when a connectivity stream is cancelled
 
 ## 2.0.3
 

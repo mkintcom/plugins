@@ -1,8 +1,4 @@
-## 2.0.1
-
-* Update platform_plugin_interface version requirement.
-
-## 2.0.0
+## 2.0.0-nullsafety
 
 * Migrate to null safety.
 * Breaking Changes:

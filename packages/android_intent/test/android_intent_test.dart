@@ -2,27 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.9
+
 import 'package:android_intent/flag.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:android_intent/android_intent.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:platform/platform.dart';
 
-import 'android_intent_test.mocks.dart';
-
-@GenerateMocks([MethodChannel])
 void main() {
-  late AndroidIntent androidIntent;
-  late MockMethodChannel mockChannel;
+  AndroidIntent androidIntent;
+  MockMethodChannel mockChannel;
 
   setUp(() {
     mockChannel = MockMethodChannel();
     when(mockChannel.invokeMethod<bool>('canResolveActivity', any))
         .thenAnswer((realInvocation) async => true);
-    when(mockChannel.invokeMethod<void>('launch', any))
-        .thenAnswer((realInvocation) async => {});
   });
 
   group('AndroidIntent', () {
@@ -182,3 +178,5 @@ void main() {
     });
   });
 }
+
+class MockMethodChannel extends Mock implements MethodChannel {}

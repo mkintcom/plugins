@@ -14,23 +14,52 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null && pwd)"
 readonly REPO_DIR="$(dirname "$SCRIPT_DIR")"
 
 source "$SCRIPT_DIR/common.sh"
+source "$SCRIPT_DIR/nnbd_plugins.sh"
 
 check_changed_packages > /dev/null
 
-# This list should be kept as short as possible, and things should remain here
-# only as long as necessary, since in general the goal is for all of the latest
-# versions of plugins to be mutually compatible.
-#
-# An example use case for this list would be to temporarily add plugins while
-# updating multiple plugins for a breaking change in a common dependency in
-# cases where using a relaxed version constraint isn't possible.
 readonly EXCLUDED_PLUGINS_LIST=(
-  "plugin_platform_interface" # This should never be a direct app dependency.
+  "connectivity_macos"
+  "connectivity_platform_interface"
+  "connectivity_web"
+  "extension_google_sign_in_as_googleapis_auth"
+  "file_selector" # currently out of sync with camera
+  "flutter_plugin_android_lifecycle"
+  "google_maps_flutter_platform_interface"
+  "google_maps_flutter_web"
+  "google_sign_in_platform_interface"
+  "google_sign_in_web"
+  "image_picker_platform_interface"
+  "image_picker"
+  "instrumentation_adapter"
+  "local_auth" # flutter_plugin_android_lifecycle conflict
+  "path_provider_linux"
+  "path_provider_macos"
+  "path_provider_platform_interface"
+  "path_provider_web"
+  "plugin_platform_interface"
+  "shared_preferences_linux"
+  "shared_preferences_macos"
+  "shared_preferences_platform_interface"
+  "shared_preferences_web"
+  "shared_preferences_windows"
+  "url_launcher_linux"
+  "url_launcher_macos"
+  "url_launcher_platform_interface"
+  "url_launcher_web"
+  "video_player_platform_interface"
+  "video_player_web"
 )
 # Comma-separated string of the list above
 readonly EXCLUDED=$(IFS=, ; echo "${EXCLUDED_PLUGINS_LIST[*]}")
 
 ALL_EXCLUDED=($EXCLUDED)
+# Exclude nnbd plugins from stable, and conflicting plugins otherwise.
+if [ "$CHANNEL" == "stable" ]; then
+  ALL_EXCLUDED=("$EXCLUDED,$EXCLUDED_PLUGINS_FROM_STABLE")
+else
+  ALL_EXCLUDED=("$EXCLUDED,$EXCLUDED_PLUGINS_FOR_NNBD")
+fi
 
 echo "Excluding the following plugins: $ALL_EXCLUDED"
 
@@ -42,14 +71,7 @@ function error() {
 
 failures=0
 
-BUILD_MODES=("debug" "release")
-# Web doesn't support --debug for builds.
-if [[ "$1" == "web" ]]; then
-  BUILD_MODES=("release")
-fi
-
-for version in "${BUILD_MODES[@]}"; do
-  echo "Building $version..."
+for version in "debug" "release"; do
   (cd $REPO_DIR/all_plugins && flutter build $@ --$version)
 
   if [ $? -eq 0 ]; then

@@ -13,7 +13,6 @@ import io.flutter.plugin.common.MethodChannel;
 public class SharedPreferencesPlugin implements FlutterPlugin {
   private static final String CHANNEL_NAME = "plugins.flutter.io/shared_preferences";
   private MethodChannel channel;
-  private MethodCallHandlerImpl handler;
 
   @SuppressWarnings("deprecation")
   public static void registerWith(io.flutter.plugin.common.PluginRegistry.Registrar registrar) {
@@ -33,13 +32,11 @@ public class SharedPreferencesPlugin implements FlutterPlugin {
 
   private void setupChannel(BinaryMessenger messenger, Context context) {
     channel = new MethodChannel(messenger, CHANNEL_NAME);
-    handler = new MethodCallHandlerImpl(context);
+    MethodCallHandlerImpl handler = new MethodCallHandlerImpl(context);
     channel.setMethodCallHandler(handler);
   }
 
   private void teardownChannel() {
-    handler.teardown();
-    handler = null;
     channel.setMethodCallHandler(null);
     channel = null;
   }

@@ -31,6 +31,7 @@ import java.util.List;
     info.put("priceCurrencyCode", detail.getPriceCurrencyCode());
     info.put("sku", detail.getSku());
     info.put("type", detail.getType());
+    info.put("isRewarded", detail.isRewarded());
     info.put("subscriptionPeriod", detail.getSubscriptionPeriod());
     info.put("originalPrice", detail.getOriginalPrice());
     info.put("originalPriceAmountMicros", detail.getOriginalPriceAmountMicros());

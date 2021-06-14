@@ -98,9 +98,7 @@ void main() {
       await VideoPlayerPlatform.instance.setVolume(videoPlayerId, 0);
       await VideoPlayerPlatform.instance.play(videoPlayerId);
 
-      expect(() async {
-        await eventStream.last;
-      }, throwsA(isA<PlatformException>()));
+      expect(eventStream, emitsError(isA<PlatformException>()));
     });
 
     test('can pause', () {
@@ -137,11 +135,6 @@ void main() {
     test('can build view', () {
       expect(VideoPlayerPlatform.instance.buildView(textureId),
           isInstanceOf<Widget>());
-    });
-
-    test('ignores setting mixWithOthers', () {
-      expect(VideoPlayerPlatform.instance.setMixWithOthers(true), completes);
-      expect(VideoPlayerPlatform.instance.setMixWithOthers(false), completes);
     });
   });
 }

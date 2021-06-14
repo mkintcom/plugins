@@ -28,11 +28,11 @@ class PlacePolygonBody extends StatefulWidget {
 class PlacePolygonBodyState extends State<PlacePolygonBody> {
   PlacePolygonBodyState();
 
-  GoogleMapController? controller;
+  GoogleMapController controller;
   Map<PolygonId, Polygon> polygons = <PolygonId, Polygon>{};
   Map<PolygonId, double> polygonOffsets = <PolygonId, double>{};
   int _polygonIdCounter = 0;
-  PolygonId? selectedPolygon;
+  PolygonId selectedPolygon;
 
   // Values when toggling polygon color
   int strokeColorsIndex = 0;
@@ -63,10 +63,10 @@ class PlacePolygonBodyState extends State<PlacePolygonBody> {
     });
   }
 
-  void _remove(PolygonId polygonId) {
+  void _remove() {
     setState(() {
-      if (polygons.containsKey(polygonId)) {
-        polygons.remove(polygonId);
+      if (polygons.containsKey(selectedPolygon)) {
+        polygons.remove(selectedPolygon);
       }
       selectedPolygon = null;
     });
@@ -102,63 +102,62 @@ class PlacePolygonBodyState extends State<PlacePolygonBody> {
     });
   }
 
-  void _toggleGeodesic(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _toggleGeodesic() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] = polygon.copyWith(
+      polygons[selectedPolygon] = polygon.copyWith(
         geodesicParam: !polygon.geodesic,
       );
     });
   }
 
-  void _toggleVisible(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _toggleVisible() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] = polygon.copyWith(
+      polygons[selectedPolygon] = polygon.copyWith(
         visibleParam: !polygon.visible,
       );
     });
   }
 
-  void _changeStrokeColor(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _changeStrokeColor() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] = polygon.copyWith(
+      polygons[selectedPolygon] = polygon.copyWith(
         strokeColorParam: colors[++strokeColorsIndex % colors.length],
       );
     });
   }
 
-  void _changeFillColor(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _changeFillColor() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] = polygon.copyWith(
+      polygons[selectedPolygon] = polygon.copyWith(
         fillColorParam: colors[++fillColorsIndex % colors.length],
       );
     });
   }
 
-  void _changeWidth(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _changeWidth() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] = polygon.copyWith(
+      polygons[selectedPolygon] = polygon.copyWith(
         strokeWidthParam: widths[++widthsIndex % widths.length],
       );
     });
   }
 
-  void _addHoles(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _addHoles() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] =
-          polygon.copyWith(holesParam: _createHoles(polygonId));
+      polygons[selectedPolygon] = polygon.copyWith(holesParam: _createHoles());
     });
   }
 
-  void _removeHoles(PolygonId polygonId) {
-    final Polygon polygon = polygons[polygonId]!;
+  void _removeHoles() {
+    final Polygon polygon = polygons[selectedPolygon];
     setState(() {
-      polygons[polygonId] = polygon.copyWith(
+      polygons[selectedPolygon] = polygon.copyWith(
         holesParam: <List<LatLng>>[],
       );
     });
@@ -166,7 +165,6 @@ class PlacePolygonBodyState extends State<PlacePolygonBody> {
 
   @override
   Widget build(BuildContext context) {
-    final PolygonId? selectedId = selectedPolygon;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -200,21 +198,18 @@ class PlacePolygonBodyState extends State<PlacePolygonBody> {
                         ),
                         TextButton(
                           child: const Text('remove'),
-                          onPressed: (selectedId == null)
-                              ? null
-                              : () => _remove(selectedId),
+                          onPressed: (selectedPolygon == null) ? null : _remove,
                         ),
                         TextButton(
                           child: const Text('toggle visible'),
-                          onPressed: (selectedId == null)
-                              ? null
-                              : () => _toggleVisible(selectedId),
+                          onPressed:
+                              (selectedPolygon == null) ? null : _toggleVisible,
                         ),
                         TextButton(
                           child: const Text('toggle geodesic'),
-                          onPressed: (selectedId == null)
+                          onPressed: (selectedPolygon == null)
                               ? null
-                              : () => _toggleGeodesic(selectedId),
+                              : _toggleGeodesic,
                         ),
                       ],
                     ),
@@ -222,37 +217,36 @@ class PlacePolygonBodyState extends State<PlacePolygonBody> {
                       children: <Widget>[
                         TextButton(
                           child: const Text('add holes'),
-                          onPressed: (selectedId == null)
+                          onPressed: (selectedPolygon == null)
                               ? null
-                              : ((polygons[selectedId]!.holes.isNotEmpty)
+                              : ((polygons[selectedPolygon].holes.isNotEmpty)
                                   ? null
-                                  : () => _addHoles(selectedId)),
+                                  : _addHoles),
                         ),
                         TextButton(
                           child: const Text('remove holes'),
-                          onPressed: (selectedId == null)
+                          onPressed: (selectedPolygon == null)
                               ? null
-                              : ((polygons[selectedId]!.holes.isEmpty)
+                              : ((polygons[selectedPolygon].holes.isEmpty)
                                   ? null
-                                  : () => _removeHoles(selectedId)),
+                                  : _removeHoles),
                         ),
                         TextButton(
                           child: const Text('change stroke width'),
-                          onPressed: (selectedId == null)
-                              ? null
-                              : () => _changeWidth(selectedId),
+                          onPressed:
+                              (selectedPolygon == null) ? null : _changeWidth,
                         ),
                         TextButton(
                           child: const Text('change stroke color'),
-                          onPressed: (selectedId == null)
+                          onPressed: (selectedPolygon == null)
                               ? null
-                              : () => _changeStrokeColor(selectedId),
+                              : _changeStrokeColor,
                         ),
                         TextButton(
                           child: const Text('change fill color'),
-                          onPressed: (selectedId == null)
+                          onPressed: (selectedPolygon == null)
                               ? null
-                              : () => _changeFillColor(selectedId),
+                              : _changeFillColor,
                         ),
                       ],
                     )
@@ -276,9 +270,9 @@ class PlacePolygonBodyState extends State<PlacePolygonBody> {
     return points;
   }
 
-  List<List<LatLng>> _createHoles(PolygonId polygonId) {
+  List<List<LatLng>> _createHoles() {
     final List<List<LatLng>> holes = <List<LatLng>>[];
-    final double offset = polygonOffsets[polygonId]!;
+    final double offset = polygonOffsets[selectedPolygon];
 
     final List<LatLng> hole1 = <LatLng>[];
     hole1.add(_createLatLng(51.8395 + offset, -3.8814));
