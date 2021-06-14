@@ -8,11 +8,7 @@ class SaveTextPage extends StatelessWidget {
   final TextEditingController _contentController = TextEditingController();
 
   void _saveFile() async {
-    String? path = await getSavePath();
-    if (path == null) {
-      // Operation was canceled by the user.
-      return;
-    }
+    final String path = await getSavePath();
     final String text = _contentController.text;
     final String fileName = _nameController.text;
     final Uint8List fileData = Uint8List.fromList(text.codeUnits);

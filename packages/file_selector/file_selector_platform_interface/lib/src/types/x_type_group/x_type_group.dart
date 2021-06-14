@@ -10,11 +10,11 @@ class XTypeGroup {
   /// allowed.
   XTypeGroup({
     this.label,
-    List<String>? extensions,
+    this.extensions,
     this.mimeTypes,
     this.macUTIs,
     this.webWildCards,
-  }) : this.extensions = _removeLeadingDots(extensions);
+  });
 
   /// The 'name' or reference to this group of types
   final String? label;
@@ -41,7 +41,4 @@ class XTypeGroup {
       'webWildCards': webWildCards,
     };
   }
-
-  static List<String>? _removeLeadingDots(List<String>? exts) =>
-      exts?.map((ext) => ext.startsWith('.') ? ext.substring(1) : ext).toList();
 }

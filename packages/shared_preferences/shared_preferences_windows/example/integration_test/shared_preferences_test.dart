@@ -2,15 +2,13 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-// @dart=2.9
-
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences_windows/shared_preferences_windows.dart';
-import 'package:integration_test/integration_test.dart';
+import 'package:e2e/e2e.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  E2EWidgetsFlutterBinding.ensureInitialized();
 
   group('SharedPreferencesWindows', () {
     const Map<String, dynamic> kTestValues = <String, dynamic>{

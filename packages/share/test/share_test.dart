@@ -2,33 +2,38 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.9
+
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flutter/services.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' show TestWidgetsFlutterBinding;
+import 'package:mockito/mockito.dart';
 import 'package:share/share.dart';
+import 'package:test/test.dart';
+
+import 'package:flutter/services.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized(); // Required for MethodChannels
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  late FakeMethodChannel fakeChannel;
+  MockMethodChannel mockChannel;
 
   setUp(() {
-    fakeChannel = FakeMethodChannel();
-    // Re-pipe to our fake to verify invocations.
+    mockChannel = MockMethodChannel();
+    // Re-pipe to mockito for easier verifies.
     Share.channel.setMockMethodCallHandler((MethodCall call) async {
       // The explicit type can be void as the only method call has a return type of void.
-      await fakeChannel.invokeMethod<void>(call.method, call.arguments);
+      await mockChannel.invokeMethod<void>(call.method, call.arguments);
     });
   });
 
   test('sharing empty fails', () {
     expect(
       () => Share.share(''),
-      throwsA(isA<AssertionError>()),
+      throwsA(const TypeMatcher<AssertionError>()),
     );
-    expect(fakeChannel.invocation, isNull);
+    verifyZeroInteractions(mockChannel);
   });
 
   test('sharing origin sets the right params', () async {
@@ -37,28 +42,22 @@ void main() {
       subject: 'some subject to share',
       sharePositionOrigin: const Rect.fromLTWH(1.0, 2.0, 3.0, 4.0),
     );
-
-    expect(
-      fakeChannel.invocation,
-      equals({
-        'share': {
-          'text': 'some text to share',
-          'subject': 'some subject to share',
-          'originX': 1.0,
-          'originY': 2.0,
-          'originWidth': 3.0,
-          'originHeight': 4.0,
-        }
-      }),
-    );
+    verify(mockChannel.invokeMethod<void>('share', <String, dynamic>{
+      'text': 'some text to share',
+      'subject': 'some subject to share',
+      'originX': 1.0,
+      'originY': 2.0,
+      'originWidth': 3.0,
+      'originHeight': 4.0,
+    }));
   });
 
   test('sharing empty file fails', () {
     expect(
       () => Share.shareFiles(['']),
-      throwsA(isA<AssertionError>()),
+      throwsA(const TypeMatcher<AssertionError>()),
     );
-    expect(fakeChannel.invocation, isNull);
+    verifyZeroInteractions(mockChannel);
   });
 
   test('sharing file sets correct mimeType', () async {
@@ -66,18 +65,11 @@ void main() {
     final File file = File(path);
     try {
       file.createSync();
-
       await Share.shareFiles([path]);
-
-      expect(
-        fakeChannel.invocation,
-        equals({
-          'shareFiles': {
-            'paths': [path],
-            'mimeTypes': ['image/png'],
-          }
-        }),
-      );
+      verify(mockChannel.invokeMethod('shareFiles', <String, dynamic>{
+        'paths': [path],
+        'mimeTypes': ['image/png'],
+      }));
     } finally {
       file.deleteSync();
     }
@@ -88,30 +80,15 @@ void main() {
     final File file = File(path);
     try {
       file.createSync();
-
       await Share.shareFiles([path], mimeTypes: ['*/*']);
-
-      expect(
-        fakeChannel.invocation,
-        equals({
-          'shareFiles': {
-            'paths': [file.path],
-            'mimeTypes': ['*/*'],
-          }
-        }),
-      );
+      verify(mockChannel.invokeMethod('shareFiles', <String, dynamic>{
+        'paths': [file.path],
+        'mimeTypes': ['*/*'],
+      }));
     } finally {
       file.deleteSync();
     }
   });
 }
 
-class FakeMethodChannel extends Fake implements MethodChannel {
-  Map<String, dynamic>? invocation;
-
-  @override
-  Future<T?> invokeMethod<T>(String method, [dynamic arguments]) async {
-    this.invocation = {method: arguments};
-    return null;
-  }
-}
+class MockMethodChannel extends Mock implements MethodChannel {}

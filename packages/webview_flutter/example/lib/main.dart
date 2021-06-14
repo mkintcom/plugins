@@ -63,9 +63,6 @@ class _WebViewExampleState extends State<WebViewExample> {
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
           },
-          onProgress: (int progress) {
-            print("WebView is loading (progress : $progress%)");
-          },
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
           },

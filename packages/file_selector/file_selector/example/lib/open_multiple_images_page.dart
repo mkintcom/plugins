@@ -18,10 +18,6 @@ class OpenMultipleImagesPage extends StatelessWidget {
       jpgsTypeGroup,
       pngTypeGroup,
     ]);
-    if (files.isEmpty) {
-      // Operation was canceled by the user.
-      return;
-    }
     await showDialog(
       context: context,
       builder: (context) => MultipleImagesDisplay(files),

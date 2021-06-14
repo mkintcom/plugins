@@ -27,27 +27,26 @@ class PurchaseWrapper {
   /// Creates a purchase wrapper with the given purchase details.
   @visibleForTesting
   PurchaseWrapper(
-      {required this.orderId,
-      required this.packageName,
-      required this.purchaseTime,
-      required this.purchaseToken,
-      required this.signature,
-      required this.sku,
-      required this.isAutoRenewing,
-      required this.originalJson,
-      this.developerPayload,
-      required this.isAcknowledged,
-      required this.purchaseState});
+      {@required this.orderId,
+      @required this.packageName,
+      @required this.purchaseTime,
+      @required this.purchaseToken,
+      @required this.signature,
+      @required this.sku,
+      @required this.isAutoRenewing,
+      @required this.originalJson,
+      @required this.developerPayload,
+      @required this.isAcknowledged,
+      @required this.purchaseState});
 
   /// Factory for creating a [PurchaseWrapper] from a [Map] with the purchase details.
-  factory PurchaseWrapper.fromJson(Map<String, dynamic> map) =>
-      _$PurchaseWrapperFromJson(map);
+  factory PurchaseWrapper.fromJson(Map map) => _$PurchaseWrapperFromJson(map);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     if (other.runtimeType != runtimeType) return false;
-    final PurchaseWrapper typedOther = other as PurchaseWrapper;
+    final PurchaseWrapper typedOther = other;
     return typedOther.orderId == orderId &&
         typedOther.packageName == packageName &&
         typedOther.purchaseTime == purchaseTime &&
@@ -75,28 +74,22 @@ class PurchaseWrapper {
 
   /// The unique ID for this purchase. Corresponds to the Google Payments order
   /// ID.
-  @JsonKey(defaultValue: '')
   final String orderId;
 
   /// The package name the purchase was made from.
-  @JsonKey(defaultValue: '')
   final String packageName;
 
   /// When the purchase was made, as an epoch timestamp.
-  @JsonKey(defaultValue: 0)
   final int purchaseTime;
 
   /// A unique ID for a given [SkuDetailsWrapper], user, and purchase.
-  @JsonKey(defaultValue: '')
   final String purchaseToken;
 
   /// Signature of purchase data, signed with the developer's private key. Uses
   /// RSASSA-PKCS1-v1_5.
-  @JsonKey(defaultValue: '')
   final String signature;
 
   /// The product ID of this purchase.
-  @JsonKey(defaultValue: '')
   final String sku;
 
   /// True for subscriptions that renew automatically. Does not apply to
@@ -104,8 +97,6 @@ class PurchaseWrapper {
   ///
   /// For [SkuType.subs] this means that the subscription is canceled when it is
   /// false.
-  ///
-  /// The value is `false` for [SkuType.inapp] products.
   final bool isAutoRenewing;
 
   /// Details about this purchase, in JSON.
@@ -114,21 +105,15 @@ class PurchaseWrapper {
   /// device"](https://developer.android.com/google/play/billing/billing_library_overview#Verify-purchase-device).
   /// Note though that verifying a purchase locally is inherently insecure (see
   /// the article for more details).
-  @JsonKey(defaultValue: '')
   final String originalJson;
 
   /// The payload specified by the developer when the purchase was acknowledged or consumed.
-  ///
-  /// The value is `null` if it wasn't specified when the purchase was acknowledged or consumed.
-  /// The `developerPayload` is removed from [BillingClientWrapper.acknowledgePurchase], [BillingClientWrapper.consumeAsync], [InAppPurchaseConnection.completePurchase], [InAppPurchaseConnection.consumePurchase]
-  /// after plugin version `0.5.0`. As a result, this will be `null` for new purchases that happen after updating to `0.5.0`.
-  final String? developerPayload;
+  final String developerPayload;
 
   /// Whether the purchase has been acknowledged.
   ///
   /// A successful purchase has to be acknowledged within 3 days after the purchase via [BillingClient.acknowledgePurchase].
   /// * See also [BillingClient.acknowledgePurchase] for more details on acknowledging purchases.
-  @JsonKey(defaultValue: false)
   final bool isAcknowledged;
 
   /// Determines the current state of the purchase.
@@ -152,33 +137,29 @@ class PurchaseHistoryRecordWrapper {
   /// Creates a [PurchaseHistoryRecordWrapper] with the given record details.
   @visibleForTesting
   PurchaseHistoryRecordWrapper({
-    required this.purchaseTime,
-    required this.purchaseToken,
-    required this.signature,
-    required this.sku,
-    required this.originalJson,
-    required this.developerPayload,
+    @required this.purchaseTime,
+    @required this.purchaseToken,
+    @required this.signature,
+    @required this.sku,
+    @required this.originalJson,
+    @required this.developerPayload,
   });
 
   /// Factory for creating a [PurchaseHistoryRecordWrapper] from a [Map] with the record details.
-  factory PurchaseHistoryRecordWrapper.fromJson(Map<String, dynamic> map) =>
+  factory PurchaseHistoryRecordWrapper.fromJson(Map map) =>
       _$PurchaseHistoryRecordWrapperFromJson(map);
 
   /// When the purchase was made, as an epoch timestamp.
-  @JsonKey(defaultValue: 0)
   final int purchaseTime;
 
   /// A unique ID for a given [SkuDetailsWrapper], user, and purchase.
-  @JsonKey(defaultValue: '')
   final String purchaseToken;
 
   /// Signature of purchase data, signed with the developer's private key. Uses
   /// RSASSA-PKCS1-v1_5.
-  @JsonKey(defaultValue: '')
   final String signature;
 
   /// The product ID of this purchase.
-  @JsonKey(defaultValue: '')
   final String sku;
 
   /// Details about this purchase, in JSON.
@@ -187,20 +168,16 @@ class PurchaseHistoryRecordWrapper {
   /// device"](https://developer.android.com/google/play/billing/billing_library_overview#Verify-purchase-device).
   /// Note though that verifying a purchase locally is inherently insecure (see
   /// the article for more details).
-  @JsonKey(defaultValue: '')
   final String originalJson;
 
   /// The payload specified by the developer when the purchase was acknowledged or consumed.
-  ///
-  /// The value is `null` if it wasn't specified when the purchase was acknowledged or consumed.
-  final String? developerPayload;
+  final String developerPayload;
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     if (other.runtimeType != runtimeType) return false;
-    final PurchaseHistoryRecordWrapper typedOther =
-        other as PurchaseHistoryRecordWrapper;
+    final PurchaseHistoryRecordWrapper typedOther = other;
     return typedOther.purchaseTime == purchaseTime &&
         typedOther.purchaseToken == purchaseToken &&
         typedOther.signature == signature &&
@@ -226,9 +203,9 @@ class PurchaseHistoryRecordWrapper {
 class PurchasesResultWrapper {
   /// Creates a [PurchasesResultWrapper] with the given purchase result details.
   PurchasesResultWrapper(
-      {required this.responseCode,
-      required this.billingResult,
-      required this.purchasesList});
+      {@required this.responseCode,
+      @required this.billingResult,
+      @required this.purchasesList});
 
   /// Factory for creating a [PurchaseResultWrapper] from a [Map] with the result details.
   factory PurchasesResultWrapper.fromJson(Map<String, dynamic> map) =>
@@ -238,7 +215,7 @@ class PurchasesResultWrapper {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     if (other.runtimeType != runtimeType) return false;
-    final PurchasesResultWrapper typedOther = other as PurchasesResultWrapper;
+    final PurchasesResultWrapper typedOther = other;
     return typedOther.responseCode == responseCode &&
         typedOther.purchasesList == purchasesList &&
         typedOther.billingResult == billingResult;
@@ -259,7 +236,6 @@ class PurchasesResultWrapper {
   /// The list of successful purchases made in this transaction.
   ///
   /// May be empty, especially if [responseCode] is not [BillingResponse.ok].
-  @JsonKey(defaultValue: <PurchaseWrapper>[])
   final List<PurchaseWrapper> purchasesList;
 }
 
@@ -272,7 +248,7 @@ class PurchasesResultWrapper {
 class PurchasesHistoryResult {
   /// Creates a [PurchasesHistoryResult] with the provided history.
   PurchasesHistoryResult(
-      {required this.billingResult, required this.purchaseHistoryRecordList});
+      {@required this.billingResult, @required this.purchaseHistoryRecordList});
 
   /// Factory for creating a [PurchasesHistoryResult] from a [Map] with the history result details.
   factory PurchasesHistoryResult.fromJson(Map<String, dynamic> map) =>
@@ -282,7 +258,7 @@ class PurchasesHistoryResult {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     if (other.runtimeType != runtimeType) return false;
-    final PurchasesHistoryResult typedOther = other as PurchasesHistoryResult;
+    final PurchasesHistoryResult typedOther = other;
     return typedOther.purchaseHistoryRecordList == purchaseHistoryRecordList &&
         typedOther.billingResult == billingResult;
   }
@@ -296,7 +272,6 @@ class PurchasesHistoryResult {
   /// The list of queried purchase history records.
   ///
   /// May be empty, especially if [billingResult.responseCode] is not [BillingResponse.ok].
-  @JsonKey(defaultValue: <PurchaseHistoryRecordWrapper>[])
   final List<PurchaseHistoryRecordWrapper> purchaseHistoryRecordList;
 }
 

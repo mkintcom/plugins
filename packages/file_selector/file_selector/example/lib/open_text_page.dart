@@ -8,11 +8,7 @@ class OpenTextPage extends StatelessWidget {
       label: 'text',
       extensions: ['txt', 'json'],
     );
-    final XFile? file = await openFile(acceptedTypeGroups: [typeGroup]);
-    if (file == null) {
-      // Operation was canceled by the user.
-      return;
-    }
+    final XFile file = await openFile(acceptedTypeGroups: [typeGroup]);
     final String fileName = file.name;
     final String fileContent = await file.readAsString();
 

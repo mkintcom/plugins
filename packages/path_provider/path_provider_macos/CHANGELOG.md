@@ -1,6 +1,10 @@
-## 2.0.0
+## 2.0.0-nullsafety
 
-* Update Dart SDK constraint for null safety compatibility.
+* Update version to (semi-belatedly) meet 1.0-consistency promise.
+
+## 0.0.5-nullsafety
+
+* Update Dart SDK constraint for null safety.
 
 ## 0.0.4+9
 

@@ -74,11 +74,8 @@ Map<String, dynamic> buildLocaleMap(SKPriceLocaleWrapper local) {
   };
 }
 
-Map<String, dynamic>? buildSubscriptionPeriodMap(
-    SKProductSubscriptionPeriodWrapper? sub) {
-  if (sub == null) {
-    return null;
-  }
+Map<String, dynamic> buildSubscriptionPeriodMap(
+    SKProductSubscriptionPeriodWrapper sub) {
   return {
     'numberOfUnits': sub.numberOfUnits,
     'unit': SKSubscriptionPeriodUnit.values.indexOf(sub.unit),
@@ -107,7 +104,7 @@ Map<String, dynamic> buildProductMap(SKProductWrapper product) {
     'price': product.price,
     'subscriptionPeriod':
         buildSubscriptionPeriodMap(product.subscriptionPeriod),
-    'introductoryPrice': buildDiscountMap(product.introductoryPrice!),
+    'introductoryPrice': buildDiscountMap(product.introductoryPrice),
   };
 }
 
@@ -132,16 +129,17 @@ Map<String, dynamic> buildErrorMap(SKError error) {
 
 Map<String, dynamic> buildTransactionMap(
     SKPaymentTransactionWrapper transaction) {
-  Map<String, dynamic> map = <String, dynamic>{
+  if (transaction == null) {
+    return null;
+  }
+  Map map = <String, dynamic>{
     'transactionState': SKPaymentTransactionStateWrapper.values
         .indexOf(SKPaymentTransactionStateWrapper.purchased),
     'payment': transaction.payment.toMap(),
-    'originalTransaction': transaction.originalTransaction == null
-        ? null
-        : buildTransactionMap(transaction.originalTransaction!),
+    'originalTransaction': buildTransactionMap(transaction.originalTransaction),
     'transactionTimeStamp': transaction.transactionTimeStamp,
     'transactionIdentifier': transaction.transactionIdentifier,
-    'error': buildErrorMap(transaction.error!),
+    'error': buildErrorMap(transaction.error),
   };
   return map;
 }
