@@ -44,8 +44,41 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
         _platformCallbacksHandler.onPageStarted(call.arguments['url']!);
         return null;
       case 'onScrollChanged':
+        try {
+          final updates = ScrollUpdates(
+              y: call.arguments['y']!,
+              velocity: call.arguments['velocity']!,
+              status: ScrollStatus.values.firstWhere(
+                (ScrollStatus status) {
+                  return status.toString() ==
+                      '$ScrollStatus.${call.arguments['status']}';
+                },
+              ),
+              direction: ScrollDirection.values.firstWhere(
+                (ScrollDirection direction) {
+                  return direction.toString() ==
+                      '$ScrollDirection.${call.arguments['direction']}';
+                },
+              ));
+          print(updates);
+        } catch (e) {
+          print(e);
+        }
         _platformCallbacksHandler.onScrollChanged(ScrollUpdates(
-            y: call.arguments['y']!, velocity: call.arguments['velocity']!));
+            y: call.arguments['y']!,
+            velocity: call.arguments['velocity']!,
+            status: ScrollStatus.values.firstWhere(
+              (ScrollStatus status) {
+                return status.toString() ==
+                    '$ScrollStatus.${call.arguments['status']}';
+              },
+            ),
+            direction: ScrollDirection.values.firstWhere(
+              (ScrollDirection direction) {
+                return direction.toString() ==
+                    '$ScrollDirection.${call.arguments['direction']}';
+              },
+            )));
         return null;
       case 'onWebResourceError':
         _platformCallbacksHandler.onWebResourceError(

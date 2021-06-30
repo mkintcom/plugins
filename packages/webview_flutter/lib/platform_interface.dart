@@ -104,6 +104,31 @@ enum WebResourceErrorType {
   javaScriptResultTypeIsUnsupported,
 }
 
+/// Options scroll direction
+enum ScrollDirection {
+  /// When scroll go up
+  up,
+
+  /// When scroll go down
+  down,
+
+  /// No direction
+  none
+}
+
+/// Options scroll direction
+enum ScrollStatus {
+  /// Dragging
+  dragging,
+
+  /// Not dragging
+  not_dragging,
+
+  /// End dragging
+  end_dragging
+}
+
+/// Object indetifies scroll changes
 class ScrollUpdates {
   /// Creates a new [ScrollUpdates]
   ///
@@ -111,14 +136,32 @@ class ScrollUpdates {
   ScrollUpdates({
     required this.y,
     required this.velocity,
+    required this.status,
+    required this.direction,
   })   : assert(y != null),
-        assert(velocity != null);
+        assert(status != null),
+        assert(velocity != null),
+        assert(direction != null);
 
+  ///
   /// Scroll position on y axis
+  ///
   final double y;
 
+  ///
   /// Speed
+  ///
   final double velocity;
+
+  ///
+  /// dragging or end_dragging
+  ///
+  final ScrollStatus status;
+
+  ///
+  /// Up or down
+  ///
+  final ScrollDirection direction;
 }
 
 /// Error returned in `WebView.onWebResourceError` when a web resource loading error has occurred.
@@ -412,6 +455,7 @@ class WebSettings {
   WebSettings({
     this.javascriptMode,
     this.hasNavigationDelegate,
+    this.hasProgressTracking,
     this.debuggingEnabled,
     this.gestureNavigationEnabled,
     this.allowsInlineMediaPlayback,
@@ -423,6 +467,10 @@ class WebSettings {
 
   /// Whether the [WebView] has a [NavigationDelegate] set.
   final bool? hasNavigationDelegate;
+
+  /// Whether the [WebView] should track page loading progress.
+  /// See also: [WebViewPlatformCallbacksHandler.onProgress] to get the progress.
+  final bool? hasProgressTracking;
 
   /// Whether to enable the platform's webview content debugging tools.
   ///
@@ -451,7 +499,7 @@ class WebSettings {
 
   @override
   String toString() {
-    return 'WebSettings(javascriptMode: $javascriptMode, hasNavigationDelegate: $hasNavigationDelegate, debuggingEnabled: $debuggingEnabled, gestureNavigationEnabled: $gestureNavigationEnabled, userAgent: $userAgent, allowsInlineMediaPlayback: $allowsInlineMediaPlayback)';
+    return 'WebSettings(javascriptMode: $javascriptMode, hasNavigationDelegate: $hasNavigationDelegate, hasProgressTracking: $hasProgressTracking, debuggingEnabled: $debuggingEnabled, gestureNavigationEnabled: $gestureNavigationEnabled, userAgent: $userAgent, allowsInlineMediaPlayback: $allowsInlineMediaPlayback)';
   }
 }
 

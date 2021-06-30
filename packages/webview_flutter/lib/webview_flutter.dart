@@ -368,6 +368,11 @@ class WebView extends StatefulWidget {
   /// directly in the HTML has been loaded and code injected with
   /// [WebViewController.evaluateJavascript] can assume this.
   final PageFinishedCallback? onPageFinished;
+
+  /// Invoked when a page is loading.
+  final PageLoadingCallback? onProgress;
+
+  /// Invoked when scrolling web view
   final ScrollChangedCallback? onScrollChanged;
 
   /// Invoked when a web resource has failed to load.
@@ -490,6 +495,7 @@ WebSettings _webSettingsFromWidget(WebView widget) {
   return WebSettings(
     javascriptMode: widget.javascriptMode,
     hasNavigationDelegate: widget.navigationDelegate != null,
+    hasProgressTracking: widget.onProgress != null,
     debuggingEnabled: widget.debuggingEnabled,
     gestureNavigationEnabled: widget.gestureNavigationEnabled,
     allowsInlineMediaPlayback: widget.allowsInlineMediaPlayback,
@@ -502,6 +508,7 @@ WebSettings _clearUnchangedWebSettings(
     WebSettings currentValue, WebSettings newValue) {
   assert(currentValue.javascriptMode != null);
   assert(currentValue.hasNavigationDelegate != null);
+  assert(currentValue.hasProgressTracking != null);
   assert(currentValue.debuggingEnabled != null);
   assert(currentValue.userAgent != null);
   assert(newValue.javascriptMode != null);
@@ -511,6 +518,7 @@ WebSettings _clearUnchangedWebSettings(
 
   JavascriptMode? javascriptMode;
   bool? hasNavigationDelegate;
+  bool? hasProgressTracking;
   bool? debuggingEnabled;
   WebSetting<String?> userAgent = WebSetting.absent();
   if (currentValue.javascriptMode != newValue.javascriptMode) {
@@ -518,6 +526,9 @@ WebSettings _clearUnchangedWebSettings(
   }
   if (currentValue.hasNavigationDelegate != newValue.hasNavigationDelegate) {
     hasNavigationDelegate = newValue.hasNavigationDelegate;
+  }
+  if (currentValue.hasProgressTracking != newValue.hasProgressTracking) {
+    hasProgressTracking = newValue.hasProgressTracking;
   }
   if (currentValue.debuggingEnabled != newValue.debuggingEnabled) {
     debuggingEnabled = newValue.debuggingEnabled;
@@ -529,6 +540,7 @@ WebSettings _clearUnchangedWebSettings(
   return WebSettings(
     javascriptMode: javascriptMode,
     hasNavigationDelegate: hasNavigationDelegate,
+    hasProgressTracking: hasProgressTracking,
     debuggingEnabled: debuggingEnabled,
     userAgent: userAgent,
   );

@@ -469,33 +469,40 @@
 
 #pragma mark UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    //NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
     CGPoint scrollVelocity = [[scrollView panGestureRecognizer] velocityInView:scrollView];
-    //NSLog(@"scroll velocity : %f",scrollVelocity.y);
-    
-    //NSLog(@"is tracking: %d", scrollView.isTracking);
-    
     NSString* status = scrollView.isTracking ? @"dragging" : @"not_dragging";
+    CGPoint translation = [scrollView.panGestureRecognizer translationInView:scrollView.superview];
+    NSString* direction = translation.y > 0 ? @"down" : @"up";
+    
+    NSLog(@"scroll y: %f", scrollView.contentOffset.y);
+    NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    NSLog(@"scroll status: %@", status);
+    NSLog(@"scroll direction: %@", direction);
     
     [_channel invokeMethod:@"onScrollChanged"
                  arguments:@{
                      @"y" : [NSNumber numberWithDouble: scrollView.contentOffset.y],
                      @"velocity" : [NSNumber numberWithDouble: scrollVelocity.y],
-                     @"status": status
+                     @"status": status,
+                     @"direction": direction
                  }];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    NSLog(@"End dragging");
-    //NSLog(@"webview_flutter: scroll: %f", scrollView.contentOffset.y);
+    
     CGPoint scrollVelocity = [[scrollView panGestureRecognizer] velocityInView:scrollView];
-    //NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    
+    NSLog(@"scroll y: %f", scrollView.contentOffset.y);
+    NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    NSLog(@"scroll status: %@", @"end_dragging");
+    
     
     [_channel invokeMethod:@"onScrollChanged"
                  arguments:@{
                      @"y" : [NSNumber numberWithDouble: scrollView.contentOffset.y],
                      @"velocity" : [NSNumber numberWithDouble: scrollVelocity.y],
-                     @"status": @"end_dragging"
+                     @"status": @"end_dragging",
+                     @"direction": @"none"
                  }];
 }
 
