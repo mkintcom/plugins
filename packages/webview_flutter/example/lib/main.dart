@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/platform_interface.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() => runApp(MaterialApp(home: WebViewExample()));
@@ -62,9 +63,6 @@ class _WebViewExampleState extends State<WebViewExample> {
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
           },
-          onProgress: (int progress) {
-            print("WebView is loading (progress : $progress%)");
-          },
           javascriptChannels: <JavascriptChannel>{
             _toasterJavascriptChannel(context),
           },
@@ -81,6 +79,9 @@ class _WebViewExampleState extends State<WebViewExample> {
           },
           onPageFinished: (String url) {
             print('Page finished loading: $url');
+          },
+          onScrollChanged: (ScrollUpdates scrollUpdates) {
+            print('Scroll Changed: ${scrollUpdates.y}');
           },
           gestureNavigationEnabled: true,
         );

@@ -34,7 +34,7 @@ API_AVAILABLE(ios(9.0))
 - (void)safariViewController:(SFSafariViewController *)controller
       didCompleteInitialLoad:(BOOL)didLoadSuccessfully API_AVAILABLE(ios(9.0)) {
   if (didLoadSuccessfully) {
-    self.flutterResult(@YES);
+    self.flutterResult(nil);
   } else {
     self.flutterResult([FlutterError
         errorWithCode:@"Error"

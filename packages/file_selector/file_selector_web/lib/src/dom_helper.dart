@@ -14,7 +14,7 @@ class DomHelper {
 
   /// Default constructor, initializes the container DOM element.
   DomHelper() {
-    final body = querySelector('body')!;
+    final body = querySelector('body');
     body.children.add(_container);
   }
 
@@ -22,45 +22,42 @@ class DomHelper {
   Future<List<XFile>> getFiles({
     String accept = '',
     bool multiple = false,
-    @visibleForTesting FileUploadInputElement? input,
+    @visibleForTesting FileUploadInputElement input,
   }) {
-    final Completer<List<XFile>> completer = Completer();
-    final FileUploadInputElement inputElement =
-        input ?? FileUploadInputElement();
+    final Completer<List<XFile>> _completer = Completer();
+    input = input ?? FileUploadInputElement();
 
     _container.children.add(
-      inputElement
+      input
         ..accept = accept
         ..multiple = multiple,
     );
 
-    inputElement.onChange.first.then((_) {
-      final List<XFile> files =
-          inputElement.files!.map(_convertFileToXFile).toList();
-      inputElement.remove();
-      completer.complete(files);
+    input.onChange.first.then((_) {
+      final List<XFile> files = input.files.map(_convertFileToXFile).toList();
+      input.remove();
+      _completer.complete(files);
     });
 
-    inputElement.onError.first.then((event) {
-      final ErrorEvent error = event as ErrorEvent;
+    input.onError.first.then((event) {
+      final ErrorEvent error = event;
       final platformException = PlatformException(
         code: error.type,
         message: error.message,
       );
-      inputElement.remove();
-      completer.completeError(platformException);
+      input.remove();
+      _completer.completeError(platformException);
     });
 
-    inputElement.click();
+    input.click();
 
-    return completer.future;
+    return _completer.future;
   }
 
   XFile _convertFileToXFile(File file) => XFile(
         Url.createObjectUrl(file),
         name: file.name,
         length: file.size,
-        lastModified: DateTime.fromMillisecondsSinceEpoch(
-            file.lastModified ?? DateTime.now().millisecondsSinceEpoch),
+        lastModified: DateTime.fromMillisecondsSinceEpoch(file.lastModified),
       );
 }

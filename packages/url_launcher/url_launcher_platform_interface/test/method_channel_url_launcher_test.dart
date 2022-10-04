@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO(mvanbeusekom): Remove once Mockito is migrated to null safety.
+// @dart = 2.9
 import 'package:mockito/mockito.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -313,5 +315,5 @@ class ImplementsUrlLauncherPlatform extends Mock
 
 class ExtendsUrlLauncherPlatform extends UrlLauncherPlatform {
   @override
-  final LinkDelegate? linkDelegate = null;
+  final LinkDelegate linkDelegate = null;
 }

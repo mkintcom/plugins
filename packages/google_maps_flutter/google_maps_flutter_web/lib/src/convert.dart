@@ -11,6 +11,8 @@ final _nullLatLngBounds = LatLngBounds(
 );
 
 // Defaults taken from the Google Maps Platform SDK documentation.
+final _defaultStrokeColor = Colors.black.value;
+final _defaultFillColor = Colors.transparent.value;
 final _defaultCssColor = '#000000';
 final _defaultCssOpacity = 0.0;
 
@@ -57,39 +59,41 @@ double _getCssOpacity(Color color) {
 // buildingsEnabled seems to not have an equivalent in web
 // padding seems to behave differently in web than mobile. You can't move UI elements in web.
 gmaps.MapOptions _rawOptionsToGmapsOptions(Map<String, dynamic> rawOptions) {
+  Map<String, dynamic> optionsUpdate = rawOptions['options'] ?? {};
+
   gmaps.MapOptions options = gmaps.MapOptions();
 
-  if (_mapTypeToMapTypeId.containsKey(rawOptions['mapType'])) {
-    options.mapTypeId = _mapTypeToMapTypeId[rawOptions['mapType']];
+  if (_mapTypeToMapTypeId.containsKey(optionsUpdate['mapType'])) {
+    options.mapTypeId = _mapTypeToMapTypeId[optionsUpdate['mapType']];
   }
 
-  if (rawOptions['minMaxZoomPreference'] != null) {
+  if (optionsUpdate['minMaxZoomPreference'] != null) {
     options
-      ..minZoom = rawOptions['minMaxZoomPreference'][0]
-      ..maxZoom = rawOptions['minMaxZoomPreference'][1];
+      ..minZoom = optionsUpdate['minMaxZoomPreference'][0]
+      ..maxZoom = optionsUpdate['minMaxZoomPreference'][1];
   }
 
-  if (rawOptions['cameraTargetBounds'] != null) {
+  if (optionsUpdate['cameraTargetBounds'] != null) {
     // Needs gmaps.MapOptions.restriction and gmaps.MapRestriction
     // see: https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions.restriction
   }
 
-  if (rawOptions['zoomControlsEnabled'] != null) {
-    options.zoomControl = rawOptions['zoomControlsEnabled'];
+  if (optionsUpdate['zoomControlsEnabled'] != null) {
+    options.zoomControl = optionsUpdate['zoomControlsEnabled'];
   }
 
-  if (rawOptions['styles'] != null) {
-    options.styles = rawOptions['styles'];
+  if (optionsUpdate['styles'] != null) {
+    options.styles = optionsUpdate['styles'];
   }
 
-  if (rawOptions['scrollGesturesEnabled'] == false ||
-      rawOptions['zoomGesturesEnabled'] == false) {
+  if (optionsUpdate['scrollGesturesEnabled'] == false ||
+      optionsUpdate['zoomGesturesEnabled'] == false) {
     options.gestureHandling = 'none';
   } else {
     options.gestureHandling = 'auto';
   }
 
-  // These don't have any rawOptions entry, but they seem to be off in the native maps.
+  // These don't have any optionUpdate entry, but they seem to be off in the native maps.
   options.mapTypeControl = false;
   options.fullscreenControl = false;
   options.streetViewControl = false;
@@ -98,21 +102,26 @@ gmaps.MapOptions _rawOptionsToGmapsOptions(Map<String, dynamic> rawOptions) {
 }
 
 gmaps.MapOptions _applyInitialPosition(
-  CameraPosition initialPosition,
+  Map<String, dynamic> rawOptions,
   gmaps.MapOptions options,
 ) {
   // Adjust the initial position, if passed...
+  Map<String, dynamic> initialPosition = rawOptions['initialCameraPosition'];
   if (initialPosition != null) {
-    options.zoom = initialPosition.zoom;
-    options.center = gmaps.LatLng(
-        initialPosition.target.latitude, initialPosition.target.longitude);
+    final position = CameraPosition.fromMap(initialPosition);
+    options.zoom = position.zoom;
+    options.center =
+        gmaps.LatLng(position.target.latitude, position.target.longitude);
   }
   return options;
 }
 
 // Extracts the status of the traffic layer from the rawOptions map.
 bool _isTrafficLayerEnabled(Map<String, dynamic> rawOptions) {
-  return rawOptions['trafficEnabled'] ?? false;
+  if (rawOptions['options'] == null) {
+    return false;
+  }
+  return rawOptions['options']['trafficEnabled'] ?? false;
 }
 
 // Coverts the incoming JSON object into a List of MapTypeStyler objects.
@@ -246,6 +255,126 @@ CameraPosition _gmViewportToCameraPosition(gmaps.GMap map) {
     tilt: map.tilt ?? 0,
     zoom: map.zoom?.toDouble() ?? 10,
   );
+}
+
+Set<Marker> _rawOptionsToInitialMarkers(Map<String, dynamic> rawOptions) {
+  final List<Map<String, dynamic>> list = rawOptions['markersToAdd'];
+  Set<Marker> markers = {};
+  markers.addAll(list?.map((rawMarker) {
+        Offset offset;
+        LatLng position;
+        InfoWindow infoWindow;
+        BitmapDescriptor icon;
+        if (rawMarker['anchor'] != null) {
+          offset = Offset((rawMarker['anchor'][0]), (rawMarker['anchor'][1]));
+        }
+        if (rawMarker['position'] != null) {
+          position = LatLng.fromJson(rawMarker['position']);
+        }
+        if (rawMarker['infoWindow'] != null) {
+          final String title = rawMarker['infoWindow']['title'];
+          final String snippet = rawMarker['infoWindow']['snippet'];
+          if (title != null || snippet != null) {
+            infoWindow = InfoWindow(
+              title: title ?? '',
+              snippet: snippet ?? '',
+            );
+          }
+        }
+        if (rawMarker['icon'] != null) {
+          icon = BitmapDescriptor.fromJson(rawMarker['icon']);
+        }
+        return Marker(
+          markerId: MarkerId(rawMarker['markerId']),
+          alpha: rawMarker['alpha'],
+          anchor: offset,
+          consumeTapEvents: rawMarker['consumeTapEvents'],
+          draggable: rawMarker['draggable'],
+          flat: rawMarker['flat'],
+          icon: icon,
+          infoWindow: infoWindow,
+          position: position ?? _nullLatLng,
+          rotation: rawMarker['rotation'],
+          visible: rawMarker['visible'],
+          zIndex: rawMarker['zIndex'],
+        );
+      }) ??
+      []);
+  return markers;
+}
+
+Set<Circle> _rawOptionsToInitialCircles(Map<String, dynamic> rawOptions) {
+  final List<Map<String, dynamic>> list = rawOptions['circlesToAdd'];
+  Set<Circle> circles = {};
+  circles.addAll(list?.map((rawCircle) {
+        LatLng center;
+        if (rawCircle['center'] != null) {
+          center = LatLng.fromJson(rawCircle['center']);
+        }
+        return Circle(
+          circleId: CircleId(rawCircle['circleId']),
+          consumeTapEvents: rawCircle['consumeTapEvents'],
+          fillColor: Color(rawCircle['fillColor'] ?? _defaultFillColor),
+          center: center ?? _nullLatLng,
+          radius: rawCircle['radius'],
+          strokeColor: Color(rawCircle['strokeColor'] ?? _defaultStrokeColor),
+          strokeWidth: rawCircle['strokeWidth'],
+          visible: rawCircle['visible'],
+          zIndex: rawCircle['zIndex'],
+        );
+      }) ??
+      []);
+  return circles;
+}
+
+// Unsupported on the web: endCap, jointType, patterns and startCap.
+Set<Polyline> _rawOptionsToInitialPolylines(Map<String, dynamic> rawOptions) {
+  final List<Map<String, dynamic>> list = rawOptions['polylinesToAdd'];
+  Set<Polyline> polylines = {};
+  polylines.addAll(list?.map((rawPolyline) {
+        return Polyline(
+          polylineId: PolylineId(rawPolyline['polylineId']),
+          consumeTapEvents: rawPolyline['consumeTapEvents'],
+          color: Color(rawPolyline['color'] ?? _defaultStrokeColor),
+          geodesic: rawPolyline['geodesic'],
+          visible: rawPolyline['visible'],
+          zIndex: rawPolyline['zIndex'],
+          width: rawPolyline['width'],
+          points: rawPolyline['points']
+              ?.map<LatLng>((rawPoint) => LatLng.fromJson(rawPoint))
+              ?.toList(),
+        );
+      }) ??
+      []);
+  return polylines;
+}
+
+Set<Polygon> _rawOptionsToInitialPolygons(Map<String, dynamic> rawOptions) {
+  final List<Map<String, dynamic>> list = rawOptions['polygonsToAdd'];
+  Set<Polygon> polygons = {};
+
+  polygons.addAll(list?.map((rawPolygon) {
+        return Polygon(
+          polygonId: PolygonId(rawPolygon['polygonId']),
+          consumeTapEvents: rawPolygon['consumeTapEvents'],
+          fillColor: Color(rawPolygon['fillColor'] ?? _defaultFillColor),
+          geodesic: rawPolygon['geodesic'],
+          strokeColor: Color(rawPolygon['strokeColor'] ?? _defaultStrokeColor),
+          strokeWidth: rawPolygon['strokeWidth'],
+          visible: rawPolygon['visible'],
+          zIndex: rawPolygon['zIndex'],
+          points: rawPolygon['points']
+              ?.map<LatLng>((rawPoint) => LatLng.fromJson(rawPoint))
+              ?.toList(),
+          holes: rawPolygon['holes']
+              ?.map<List<LatLng>>((List hole) => hole
+                  ?.map<LatLng>((rawPoint) => LatLng.fromJson(rawPoint))
+                  ?.toList())
+              ?.toList(),
+        );
+      }) ??
+      []);
+  return polygons;
 }
 
 // Convert plugin objects to gmaps.Options objects
@@ -421,7 +550,7 @@ gmaps.PolylineOptions _polylineOptionsFromPolyline(
 
 // Translates a [CameraUpdate] into operations on a [gmaps.GMap].
 void _applyCameraUpdate(gmaps.GMap map, CameraUpdate update) {
-  final json = update.toJson() as List<dynamic>;
+  final json = update.toJson();
   switch (json[0]) {
     case 'newCameraPosition':
       map.heading = json[1]['bearing'];

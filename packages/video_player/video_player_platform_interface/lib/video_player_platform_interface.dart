@@ -346,9 +346,6 @@ class DurationRange {
 class VideoPlayerOptions {
   /// Set this to true to mix the video players audio with other audio sources.
   /// The default value is false
-  ///
-  /// Note: This option will be silently ignored in the web platform (there is
-  /// currently no way to implement this feature in this platform).
   final bool mixWithOthers;
 
   /// set additional optional player settings

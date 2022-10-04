@@ -40,11 +40,45 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
       case 'onPageFinished':
         _platformCallbacksHandler.onPageFinished(call.arguments['url']!);
         return null;
-      case 'onProgress':
-        _platformCallbacksHandler.onProgress(call.arguments['progress']);
-        return null;
       case 'onPageStarted':
         _platformCallbacksHandler.onPageStarted(call.arguments['url']!);
+        return null;
+      case 'onScrollChanged':
+        try {
+          final updates = ScrollUpdates(
+              y: call.arguments['y']!,
+              velocity: call.arguments['velocity']!,
+              status: ScrollStatus.values.firstWhere(
+                (ScrollStatus status) {
+                  return status.toString() ==
+                      '$ScrollStatus.${call.arguments['status']}';
+                },
+              ),
+              direction: ScrollDirection.values.firstWhere(
+                (ScrollDirection direction) {
+                  return direction.toString() ==
+                      '$ScrollDirection.${call.arguments['direction']}';
+                },
+              ));
+          print(updates);
+        } catch (e) {
+          print(e);
+        }
+        _platformCallbacksHandler.onScrollChanged(ScrollUpdates(
+            y: call.arguments['y']!,
+            velocity: call.arguments['velocity']!,
+            status: ScrollStatus.values.firstWhere(
+              (ScrollStatus status) {
+                return status.toString() ==
+                    '$ScrollStatus.${call.arguments['status']}';
+              },
+            ),
+            direction: ScrollDirection.values.firstWhere(
+              (ScrollDirection direction) {
+                return direction.toString() ==
+                    '$ScrollDirection.${call.arguments['direction']}';
+              },
+            )));
         return null;
       case 'onWebResourceError':
         _platformCallbacksHandler.onWebResourceError(
@@ -186,7 +220,6 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
 
     _addIfNonNull('jsMode', settings!.javascriptMode?.index);
     _addIfNonNull('hasNavigationDelegate', settings.hasNavigationDelegate);
-    _addIfNonNull('hasProgressTracking', settings.hasProgressTracking);
     _addIfNonNull('debuggingEnabled', settings.debuggingEnabled);
     _addIfNonNull(
         'gestureNavigationEnabled', settings.gestureNavigationEnabled);
@@ -201,16 +234,14 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   /// This is used for the `creationParams` argument of the platform views created by
   /// [AndroidWebViewBuilder] and [CupertinoWebViewBuilder].
   static Map<String, dynamic> creationParamsToMap(
-    CreationParams creationParams, {
-    bool usesHybridComposition = false,
-  }) {
+      CreationParams creationParams) {
     return <String, dynamic>{
       'initialUrl': creationParams.initialUrl,
+      'documentStartScript': creationParams.documentStartScript,
       'settings': _webSettingsToMap(creationParams.webSettings),
       'javascriptChannelNames': creationParams.javascriptChannelNames.toList(),
       'userAgent': creationParams.userAgent,
       'autoMediaPlaybackPolicy': creationParams.autoMediaPlaybackPolicy.index,
-      'usesHybridComposition': usesHybridComposition,
     };
   }
 }

@@ -30,6 +30,9 @@ abstract class WebViewPlatformCallbacksHandler {
   /// Invoked by [WebViewPlatformController] when a page has finished loading.
   void onPageFinished(String url);
 
+  /// Invoked by [WebViewPlatformController] when a page has finished loading.
+  void onScrollChanged(ScrollUpdates scrollUpdates);
+
   /// Invoked by [WebViewPlatformController] when a page is loading.
   /// /// Only works when [WebSettings.hasProgressTracking] is set to `true`.
   void onProgress(int progress);
@@ -99,6 +102,66 @@ enum WebResourceErrorType {
 
   /// The result of JavaScript execution could not be returned.
   javaScriptResultTypeIsUnsupported,
+}
+
+/// Options scroll direction
+enum ScrollDirection {
+  /// When scroll go up
+  up,
+
+  /// When scroll go down
+  down,
+
+  /// No direction
+  none
+}
+
+/// Options scroll direction
+enum ScrollStatus {
+  /// Dragging
+  dragging,
+
+  /// Not dragging
+  not_dragging,
+
+  /// End dragging
+  end_dragging
+}
+
+/// Object indetifies scroll changes
+class ScrollUpdates {
+  /// Creates a new [ScrollUpdates]
+  ///
+  /// This class is received in [onScrollUpdate]
+  ScrollUpdates({
+    required this.y,
+    required this.velocity,
+    required this.status,
+    required this.direction,
+  })   : assert(y != null),
+        assert(status != null),
+        assert(velocity != null),
+        assert(direction != null);
+
+  ///
+  /// Scroll position on y axis
+  ///
+  final double y;
+
+  ///
+  /// Speed
+  ///
+  final double velocity;
+
+  ///
+  /// dragging or end_dragging
+  ///
+  final ScrollStatus status;
+
+  ///
+  /// Up or down
+  ///
+  final ScrollDirection direction;
 }
 
 /// Error returned in `WebView.onWebResourceError` when a web resource loading error has occurred.
@@ -450,6 +513,7 @@ class CreationParams {
   /// The `autoMediaPlaybackPolicy` parameter must not be null.
   CreationParams({
     this.initialUrl,
+    this.documentStartScript,
     this.webSettings,
     this.javascriptChannelNames = const <String>{},
     this.userAgent,
@@ -461,6 +525,9 @@ class CreationParams {
   ///
   /// When null the webview will be created without loading any page.
   final String? initialUrl;
+
+  /// Javascript file
+  final String? documentStartScript;
 
   /// The initial [WebSettings] for the new webview.
   ///

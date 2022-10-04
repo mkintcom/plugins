@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -86,7 +85,6 @@ class SurfaceAndroidWebView extends AndroidWebView {
     Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers,
     required WebViewPlatformCallbacksHandler webViewPlatformCallbacksHandler,
   }) {
-    assert(Platform.isAndroid);
     assert(webViewPlatformCallbacksHandler != null);
     return PlatformViewLink(
       viewType: 'plugins.flutter.io/webview',
@@ -111,7 +109,6 @@ class SurfaceAndroidWebView extends AndroidWebView {
           layoutDirection: TextDirection.rtl,
           creationParams: MethodChannelWebViewPlatform.creationParamsToMap(
             creationParams,
-            usesHybridComposition: true,
           ),
           creationParamsCodec: const StandardMessageCodec(),
         )
@@ -144,6 +141,9 @@ typedef void PageStartedCallback(String url);
 
 /// Signature for when a [WebView] has finished loading a page.
 typedef void PageFinishedCallback(String url);
+
+/// Signature for when a [WebView] has finished loading a page.
+typedef void ScrollChangedCallback(ScrollUpdates scrollUpdates);
 
 /// Signature for when a [WebView] is loading a page.
 typedef void PageLoadingCallback(int progress);
@@ -217,12 +217,14 @@ class WebView extends StatefulWidget {
     Key? key,
     this.onWebViewCreated,
     this.initialUrl,
+    this.documentStartScript,
     this.javascriptMode = JavascriptMode.disabled,
     this.javascriptChannels,
     this.navigationDelegate,
     this.gestureRecognizers,
     this.onPageStarted,
     this.onPageFinished,
+    this.onScrollChanged,
     this.onProgress,
     this.onWebResourceError,
     this.debuggingEnabled = false,
@@ -285,6 +287,9 @@ class WebView extends StatefulWidget {
 
   /// The initial URL to load.
   final String? initialUrl;
+
+  /// The initial URL to load.
+  final String? documentStartScript;
 
   /// Whether Javascript execution is enabled.
   final JavascriptMode javascriptMode;
@@ -366,6 +371,9 @@ class WebView extends StatefulWidget {
 
   /// Invoked when a page is loading.
   final PageLoadingCallback? onProgress;
+
+  /// Invoked when scrolling web view
+  final ScrollChangedCallback? onScrollChanged;
 
   /// Invoked when a web resource has failed to load.
   ///
@@ -475,6 +483,7 @@ class _WebViewState extends State<WebView> {
 CreationParams _creationParamsfromWidget(WebView widget) {
   return CreationParams(
     initialUrl: widget.initialUrl,
+    documentStartScript: widget.documentStartScript,
     webSettings: _webSettingsFromWidget(widget),
     javascriptChannelNames: _extractChannelNames(widget.javascriptChannels),
     userAgent: widget.userAgent,
@@ -584,6 +593,13 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   void onPageFinished(String url) {
     if (_widget.onPageFinished != null) {
       _widget.onPageFinished!(url);
+    }
+  }
+
+  @override
+  void onScrollChanged(ScrollUpdates scrollUpdates) {
+    if (_widget.onScrollChanged != null) {
+      _widget.onScrollChanged!(scrollUpdates);
     }
   }
 

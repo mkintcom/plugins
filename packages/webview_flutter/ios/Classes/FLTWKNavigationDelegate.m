@@ -22,6 +22,7 @@
   [_methodChannel invokeMethod:@"onPageStarted" arguments:@{@"url" : webView.URL.absoluteString}];
 }
 
+
 - (void)webView:(WKWebView *)webView
     decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
@@ -112,5 +113,7 @@
                              userInfo:nil];
   [self onWebResourceError:contentProcessTerminatedError];
 }
+
+
 
 @end

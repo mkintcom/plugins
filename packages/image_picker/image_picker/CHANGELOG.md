@@ -1,13 +1,4 @@
-## 0.7.2
-
-* Run CocoaPods iOS tests in RunnerUITests target
-
-## 0.7.1
-
-* Update platform_plugin_interface version requirement.
-
-## 0.7.0
-
+## 0.7.0-nullsafety
 * Migrate to nullsafety
 * Breaking Changes:
     * Removed the deprecated methods: `ImagePicker.pickImage`, `ImagePicker.pickVideo`,

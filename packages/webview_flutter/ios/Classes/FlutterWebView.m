@@ -4,7 +4,6 @@
 
 #import "FlutterWebView.h"
 #import "FLTWKNavigationDelegate.h"
-#import "FLTWKProgressionDelegate.h"
 #import "JavaScriptChannelHandler.h"
 
 @implementation FLTWebViewFactory {
@@ -65,7 +64,6 @@
   // The set of registered JavaScript channel names.
   NSMutableSet* _javaScriptChannelNames;
   FLTWKNavigationDelegate* _navigationDelegate;
-  FLTWKProgressionDelegate* _progressionDelegate;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -86,17 +84,29 @@
       [self registerJavaScriptChannels:_javaScriptChannelNames controller:userContentController];
     }
 
+     NSString* documentStartScript = args[@"documentStartScript"];
+    WKUserScript* wrapperScript =
+        [[WKUserScript alloc] initWithSource:documentStartScript
+                               injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                            forMainFrameOnly:NO];
+    [userContentController addUserScript:wrapperScript];
+
     NSDictionary<NSString*, id>* settings = args[@"settings"];
 
     WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.userContentController = userContentController;
+    configuration.userContentController = userContentController;    
+
+    NSNumber* allowsInlineMediaPlaybackSettings = settings[@"allowsInlineMediaPlayback"];    
+      bool allowsInlineMediaPlayback = [allowsInlineMediaPlaybackSettings boolValue];
     [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
-                        inConfiguration:configuration];
+                        inConfiguration:configuration
+                        allowsInlineMediaPlayback:allowsInlineMediaPlayback];
 
     _webView = [[FLTWKWebView alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = _navigationDelegate;
+    _webView.scrollView.delegate = self;
     __weak __typeof__(self) weakSelf = self;
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
@@ -119,12 +129,6 @@
     }
   }
   return self;
-}
-
-- (void)dealloc {
-  if (_progressionDelegate != nil) {
-    [_progressionDelegate stopObservingProgress:_webView];
-  }
 }
 
 - (UIView*)view {
@@ -307,7 +311,7 @@
   int x = [arguments[@"x"] intValue] + contentOffset.x;
   int y = [arguments[@"y"] intValue] + contentOffset.y;
 
-  _webView.scrollView.contentOffset = CGPointMake(x, y);
+  _webView.scrollView. contentOffset = CGPointMake(x, y);
   result(nil);
 }
 
@@ -331,13 +335,6 @@
     } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
       NSNumber* hasDartNavigationDelegate = settings[key];
       _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
-    } else if ([key isEqualToString:@"hasProgressTracking"]) {
-      NSNumber* hasProgressTrackingValue = settings[key];
-      bool hasProgressTracking = [hasProgressTrackingValue boolValue];
-      if (hasProgressTracking) {
-        _progressionDelegate = [[FLTWKProgressionDelegate alloc] initWithWebView:_webView
-                                                                         channel:_channel];
-      }
     } else if ([key isEqualToString:@"debuggingEnabled"]) {
       // no-op debugging is always enabled on iOS.
     } else if ([key isEqualToString:@"gestureNavigationEnabled"]) {
@@ -376,7 +373,9 @@
 }
 
 - (void)updateAutoMediaPlaybackPolicy:(NSNumber*)policy
-                      inConfiguration:(WKWebViewConfiguration*)configuration {
+                      inConfiguration:(WKWebViewConfiguration*)configuration
+                      allowsInlineMediaPlayback:(bool)allowsInlineMediaPlayback {
+  configuration.allowsInlineMediaPlayback = allowsInlineMediaPlayback;
   switch ([policy integerValue]) {
     case 0:  // require_user_action_for_all_media_types
       if (@available(iOS 10.0, *)) {
@@ -466,6 +465,45 @@
   }
 
   return nil;
+}
+
+#pragma mark UIScrollViewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGPoint scrollVelocity = [[scrollView panGestureRecognizer] velocityInView:scrollView];
+    NSString* status = scrollView.isTracking ? @"dragging" : @"not_dragging";
+    CGPoint translation = [scrollView.panGestureRecognizer translationInView:scrollView.superview];
+    NSString* direction = translation.y > 0 ? @"down" : @"up";
+    
+    NSLog(@"scroll y: %f", scrollView.contentOffset.y);
+    NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    NSLog(@"scroll status: %@", status);
+    NSLog(@"scroll direction: %@", direction);
+    
+    [_channel invokeMethod:@"onScrollChanged"
+                 arguments:@{
+                     @"y" : [NSNumber numberWithDouble: scrollView.contentOffset.y],
+                     @"velocity" : [NSNumber numberWithDouble: scrollVelocity.y],
+                     @"status": status,
+                     @"direction": direction
+                 }];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    
+    CGPoint scrollVelocity = [[scrollView panGestureRecognizer] velocityInView:scrollView];
+    
+    NSLog(@"scroll y: %f", scrollView.contentOffset.y);
+    NSLog(@"scroll velocity : %f",scrollVelocity.y);
+    NSLog(@"scroll status: %@", @"end_dragging");
+    
+    
+    [_channel invokeMethod:@"onScrollChanged"
+                 arguments:@{
+                     @"y" : [NSNumber numberWithDouble: scrollView.contentOffset.y],
+                     @"velocity" : [NSNumber numberWithDouble: scrollVelocity.y],
+                     @"status": @"end_dragging",
+                     @"direction": @"none"
+                 }];
 }
 
 @end

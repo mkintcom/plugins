@@ -1,12 +1,8 @@
-## 2.0.2
+## 2.0.0-nullsafety.1
 
-* Update platform_plugin_interface version requirement.
+* Bump Dart SDK to support null safety.
 
-## 2.0.1
-
-* Fix SDK range.
-
-## 2.0.0
+## 2.0.0-nullsafety
 
 * Migrate to null safety.
 

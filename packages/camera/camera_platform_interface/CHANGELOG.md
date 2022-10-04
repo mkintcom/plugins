@@ -1,14 +1,10 @@
-## 2.0.1
+## 2.0.0-nullsafety
 
-* Update platform_plugin_interface version requirement.
-
-## 2.0.0
-
-- Stable null safety release.
+- Migrate to null safety.
 
 ## 1.6.0
 
-- Added VideoRecordedEvent to support ending a video recording in the native implementation.
+- Added VideoRecordedEvent to support ending a video recording in the native implementation. 
 
 ## 1.5.0
 

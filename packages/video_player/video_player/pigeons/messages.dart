@@ -54,7 +54,6 @@ abstract class VideoPlayerApi {
 
 void configurePigeon(PigeonOptions opts) {
   opts.dartOut = '../video_player_platform_interface/lib/messages.dart';
-  opts.dartTestOut = '../video_player_platform_interface/lib/test.dart';
   opts.objcHeaderOut = 'ios/Classes/messages.h';
   opts.objcSourceOut = 'ios/Classes/messages.m';
   opts.objcOptions.prefix = 'FLT';
